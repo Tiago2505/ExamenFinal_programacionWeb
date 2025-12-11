@@ -17,7 +17,7 @@ namespace examen_final.Controllers
         }
         
         [HttpPost]
-        [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin,bibliotecario")]
         public async Task<IActionResult> addLibro([FromBody] LibroDto libro)
         {
             try
@@ -30,7 +30,20 @@ namespace examen_final.Controllers
                 return BadRequest(new {error = ex.Message});
             }
         }
-        
+        [HttpDelete("{libroId}")]
+        [Authorize(Roles = "admin,bibliotecario")]
+        public async Task<IActionResult> deleteLibro(string libroId)
+        {
+            try
+            {
+                var response = await _libroService.deleteLibro(libroId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new {error = ex.Message});
+            }
+        }
     }
     
 }
