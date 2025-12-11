@@ -10,7 +10,27 @@ namespace examen_final.Controllers
     [Route("api/[controller]")]
     public class LibroController : ControllerBase
     {
+        private readonly ILibroService _libroService;
+        public LibroController(ILibroService libroService)
+        {
+            _libroService = libroService;
+        }
         
+        [HttpPost]
+        [Authorize(Roles = "admin")]
+        public async Task<IActionResult> addLibro([FromBody] LibroDto libro)
+        {
+            try
+            {
+                var response = await _libroService.addLibro(libro);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new {error = ex.Message});
+            }
+        }
         
     }
+    
 }
