@@ -33,9 +33,12 @@ namespace examen_final.Services
             if (existingUser.numeroidentidad == registerdto.numeroidentidad)
                 throw new Exception("Ya existe otro usuario con esta identidad");
 
+            if (existingUser.IsActive != true) throw new Exception("Usuario inactivo");
+
             throw new Exception("User with this email already exists");
         }
 
+        
         // 2. Generar un ID único
         var userId = Guid.NewGuid().ToString();
 
