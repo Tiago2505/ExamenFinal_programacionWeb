@@ -10,5 +10,6 @@ namespace examen_final.Services
         Task<User?> GetUserById(string userId);
         Task<User?> GetUserByEmail(string email);
         string GenerateJwtToken(User user);
+    
     }
 }

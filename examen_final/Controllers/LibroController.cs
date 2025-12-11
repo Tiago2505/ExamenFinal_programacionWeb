@@ -30,6 +30,21 @@ namespace examen_final.Controllers
                 return BadRequest(new {error = ex.Message});
             }
         }
+        [HttpPut("{id}")]
+        [Authorize(Roles = "admin,bibliotecario")]
+        public async Task<IActionResult> UpdateBook(string id, [FromBody] UpdateBookDto dto)
+        {
+            try
+            {
+                var updated = await _libroService.UpdateLibro(dto, id);
+                return Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
         
     }
     
