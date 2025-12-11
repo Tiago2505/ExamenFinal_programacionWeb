@@ -1,5 +1,7 @@
 ﻿using examen_final.DTOs;
 using examen_final.Models;
+using Google.Protobuf.WellKnownTypes;
+using Google.Cloud.Firestore;
 
 namespace examen_final.Services;
 
@@ -128,5 +130,119 @@ public class LibroService : ILibroService
         }
     }
 
-    
+   public async Task<LibroResponseDto?> UpdateLibroAsync(UpdateDto libroDto, string libroId)
+{
+    try
+    {
+        var libroDoc = _firebaseService.GetCollection("libros").Document(libroId);
+        var snapshot = await libroDoc.GetSnapshotAsync();
+
+        if (!snapshot.Exists)
+        {
+            return null;
+        }
+
+        var updates = new Dictionary<string, object>();
+
+        // Actualizar título
+        if (!string.IsNullOrEmpty(libroDto.Titulo))
+        {
+            updates["Titulo"] = libroDto.Titulo;
+        }
+
+        // Actualizar autor
+        if (!string.IsNullOrEmpty(libroDto.Autor))
+        {
+            updates["Autor"] = libroDto.Autor;
+        }
+
+        // Actualizar categoría
+        if (!string.IsNullOrEmpty(libroDto.Categoria))
+        {
+            updates["Categoria"] = libroDto.Categoria;
+        }
+
+        // Actualizar editorial
+        if (!string.IsNullOrEmpty(libroDto.Editorial))
+        {
+            updates["Editorial"] = libroDto.Editorial;
+        }
+
+        // Actualizar año de publicación
+        if (libroDto.AñoPublicacion > 0 && libroDto.AñoPublicacion <= 3000)
+        {
+            updates["AñoPublicacion"] = libroDto.AñoPublicacion;
+        }
+
+        // Actualizar copias disponibles (no puede ser mayor a copiasTotal)
+        if (libroDto.CopiasDisponibles >= 0 && libroDto.CopiasDisponibles <= libroDto.CopiasTotal)
+        {
+            updates["CopiasDisponibles"] = libroDto.CopiasDisponibles;
+        }
+
+        // Actualizar copias totales (debe ser mayor o igual a copiasDisponibles)
+        if (libroDto.CopiasTotal >= libroDto.CopiasDisponibles)
+        {
+            updates["CopiasTotal"] = libroDto.CopiasTotal;
+        }
+
+        // Actualizar ubicación
+        if (!string.IsNullOrEmpty(libroDto.Ubicacion))
+        {
+            updates["Ubicacion"] = libroDto.Ubicacion;
+        }
+
+        // Actualizar estado (solo valores válidos)
+        if (!string.IsNullOrEmpty(libroDto.Estado) &&
+            (libroDto.Estado.ToLower() == "disponible" ||
+             libroDto.Estado.ToLower() == "agotado" ||
+             libroDto.Estado.ToLower() == "en mantenimiento"))
+        {
+            updates["Estado"] = libroDto.Estado.ToLower();
+        }
+
+        // Actualizar descripción
+        if (!string.IsNullOrEmpty(libroDto.Descripcion))
+        {
+            updates["Descripcion"] = libroDto.Descripcion;
+        }
+
+        // Actualizar fecha de ingreso
+        if (libroDto.FechaIngreso != default)
+        {
+            updates["FechaIngreso"] = libroDto.FechaIngreso;
+        }
+
+        // Solo actualizar si hay campos válidos
+        if (updates.Count > 0)
+        {
+            await libroDoc.UpdateAsync(updates);
+        }
+
+        // Retornar el documento actualizado
+        var updatedSnapshot = await libroDoc.GetSnapshotAsync();
+        var updated = updatedSnapshot.ToDictionary();
+
+        return new LibroResponseDto
+        {
+            Titulo = updated["Titulo"]?.ToString() ?? "",
+            Autor = updated["Autor"]?.ToString() ?? "",
+            Isbn = updated["Id"]?.ToString() ?? "",
+            Categoria = updated["Categoria"]?.ToString() ?? "",
+            Editorial = updated["Editorial"]?.ToString() ?? "",
+            AñoPublicacion = Convert.ToInt32(updated["AñoPublicacion"]),
+            CopiasDisponibles = Convert.ToInt32(updated["CopiasDisponibles"]),
+            CopiasTotal = Convert.ToInt32(updated["CopiasTotal"]),
+            Ubicacion = updated["Ubicacion"]?.ToString() ?? "",
+            Estado = updated["Estado"]?.ToString() ?? "",
+            Descripcion = updated["Descripcion"]?.ToString() ?? "",
+            FechaIngreso = ((Google.Cloud.Firestore.Timestamp)updated["FechaIngreso"]).ToDateTime()
+        };
+    }
+    catch (Exception ex)
+    {
+        throw new Exception($"Error al actualizar libro: {ex.Message}");
+    }
+}
+
 }

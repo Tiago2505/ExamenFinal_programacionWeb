@@ -44,6 +44,21 @@ namespace examen_final.Controllers
                 return BadRequest(new {error = ex.Message});
             }
         }
+
+        [HttpPut("{libroId}")]
+        [Authorize]
+        public async Task<IActionResult> updateLibro([FromBody] UpdateDto libroDto, string libroId)
+        {
+            try
+            {
+                var response = await _libroService.UpdateLibroAsync(libroDto, libroId);
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new {error = ex.Message});
+            }
+        }
     }
     
 }

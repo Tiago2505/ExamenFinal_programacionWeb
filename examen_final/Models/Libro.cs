@@ -7,9 +7,6 @@ namespace examen_final.Models
     public class Libro
     {
         [FirestoreProperty]
-        public string Isbn { get; set; } = string.Empty; 
-        
-        [FirestoreProperty]
         public string titulo { get; set; } = string.Empty;
         
         [FirestoreProperty]
