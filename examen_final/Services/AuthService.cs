@@ -22,85 +22,87 @@ namespace examen_final.Services
         // Register
         public async Task<AuthResponseDto> Register(RegisterDto registerdto)
 {
-            try
-            {
-            // 1. Verificar si el usuario ya existe
-            var existingUser = await GetUserByEmail(registerdto.Email);
-            if (existingUser != null)
-            {
-                throw new Exception("User with this email already exists");
-            }
+    try
+    {
+        // 1. Verificar si el usuario ya existe por email
+        var existingUser = await GetUserByEmail(registerdto.Email);
 
+        if (existingUser != null)
+        {
+            // Si ya existe, podemos también verificar identidad aquí
             if (existingUser.numeroidentidad == registerdto.numeroidentidad)
                 throw new Exception("Ya existe otro usuario con esta identidad");
 
-            // 2. Generar un ID único
-            var userId = Guid.NewGuid().ToString();
-
-            // 3. Hashear contraseña
-            var passwordHash = BCrypt.Net.BCrypt.HashPassword(registerdto.Password);
-
-            // 4. Crear objeto User con tus campos reales
-            var user = new User
-            {
-                Id = userId,
-                Email = registerdto.Email,
-                nombre = registerdto.nombre,
-                apellido = registerdto.apellido,
-                edad = registerdto.edad,
-                numeroidentidad = registerdto.numeroidentidad,
-                telefono = registerdto.telefono,
-                Role = "user",
-                CreatedAt = DateTime.UtcNow,
-                IsActive = true,
-                multa = 0
-            };
-
-            // 5. Guardar usuario en Firestore con password hasheado
-            var usersCollection = _firebaseService.GetCollection("users");
-
-            var userData = new Dictionary<string, object>()
-            {
-                {"Id", user.Id},
-                {"Email", user.Email},
-                {"nombre", user.nombre},
-                {"apellido", user.apellido},
-                {"edad", user.edad},
-                {"numeroidentidad", user.numeroidentidad},
-                {"telefono", user.telefono},
-                {"Role", user.Role},
-                {"CreatedAt", user.CreatedAt},
-                {"IsActive", user.IsActive},
-                {"multa", user.multa},
-                {"PasswordHash", passwordHash}
-            };
-
-            await usersCollection.Document(user.Id).SetAsync(userData);
-
-            // 6. Generar token
-            var token = GenerateJwtToken(user);
-
-            // 7. Retornar DTO de respuesta
-            return new AuthResponseDto
-            {
-                Token = token,
-                UserId = user.Id,
-                Email = user.Email,
-                Nombre = user.nombre,
-                Apellido = user.apellido,
-                Edad = user.edad,
-                NumeroIdentidad = user.numeroidentidad,
-                Telefono = user.telefono,
-                Role = user.Role,
-                CreatedAt = user.CreatedAt,
-                IsActive = user.IsActive,
-                Multa = user.multa
-            };
+            throw new Exception("User with this email already exists");
         }
-        catch (Exception ex)
+
+        // 2. Generar un ID único
+        var userId = Guid.NewGuid().ToString();
+
+        // 3. Hashear contraseña
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword(registerdto.Password);
+
+        // 4. Crear objeto User con tus campos reales
+        var user = new User
         {
-            throw new Exception($"Error al registrar usuario: {ex.Message}");
-        }
+            Id = userId,
+            Email = registerdto.Email,
+            nombre = registerdto.nombre,
+            apellido = registerdto.apellido,
+            edad = registerdto.edad,
+            numeroidentidad = registerdto.numeroidentidad,
+            telefono = registerdto.telefono,
+            Role = "user",
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true,
+            multa = 0
+        };
+
+        // 5. Guardar usuario en Firestore con password hasheado
+        var usersCollection = _firebaseService.GetCollection("users");
+
+        var userData = new Dictionary<string, object>()
+        {
+            {"Id", user.Id},
+            {"Email", user.Email},
+            {"nombre", user.nombre},
+            {"apellido", user.apellido},
+            {"edad", user.edad},
+            {"numeroidentidad", user.numeroidentidad},
+            {"telefono", user.telefono},
+            {"Role", user.Role},
+            {"CreatedAt", user.CreatedAt},
+            {"IsActive", user.IsActive},
+            {"multa", user.multa},
+            {"PasswordHash", passwordHash}
+        };
+
+        await usersCollection.Document(user.Id).SetAsync(userData);
+
+        // 6. Generar token
+        var token = GenerateJwtToken(user);
+
+        // 7. Retornar DTO de respuesta
+        return new AuthResponseDto
+        {
+            Token = token,
+            UserId = user.Id,
+            Email = user.Email,
+            Nombre = user.nombre,
+            Apellido = user.apellido,
+            Edad = user.edad,
+            NumeroIdentidad = user.numeroidentidad,
+            Telefono = user.telefono,
+            Role = user.Role,
+            CreatedAt = user.CreatedAt,
+            IsActive = user.IsActive,
+            Multa = user.multa
+        };
+    }
+    catch (Exception ex)
+    {
+        throw new Exception($"Error al registrar usuario: {ex.Message}");
+    }
 }
 
         public async Task<User?> GetUserByEmail(string email)
