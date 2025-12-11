@@ -1,0 +1,9 @@
+examen_final/Config/firebase-credentials.json
+examen_final/appsettings.Development.json
+**/Properties/launchSettings.json
+
+*.DotSettings.user
+.idea/
+
+bin/
+obj/
