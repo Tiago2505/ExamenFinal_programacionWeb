@@ -11,6 +11,7 @@ namespace examen_final.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+
         public AuthController(IAuthService authService)
         {
             _authService = authService;
@@ -26,7 +27,7 @@ namespace examen_final.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new {error = ex.Message});
+                return BadRequest(new { error = ex.Message });
             }
         }
 
@@ -40,10 +41,10 @@ namespace examen_final.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(new {error = ex.Message});
+                return BadRequest(new { error = ex.Message });
             }
         }
-        
+
         [HttpGet("me")]
         [Authorize] // Requiere que se autentique si o si
         public async Task<IActionResult> GetCurrentUser()
@@ -56,22 +57,22 @@ namespace examen_final.Controllers
 
                 if (string.IsNullOrEmpty(userId))
                 {
-                    return Unauthorized(new {error = "Token no valido"});
+                    return Unauthorized(new { error = "Token no valido" });
                 }
 
                 var user = await _authService.GetUserById(userId);
                 if (user == null)
                 {
-                    return NotFound(new {error = "Usuario no encontrado"});
+                    return NotFound(new { error = "Usuario no encontrado" });
                 }
-                
+
                 return Ok(user);
             }
             catch (Exception ex)
             {
-                return BadRequest(new {error = ex.Message});
+                return BadRequest(new { error = ex.Message });
             }
         }
-        
     }
 }
+        

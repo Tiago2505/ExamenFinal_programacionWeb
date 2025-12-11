@@ -6,5 +6,7 @@ namespace examen_final.Services
     public interface ILibroService
     {
         Task<LibroResponseDto> addLibro(LibroDto libro);
+        Task<Libro?> UpdateLibro(UpdateBookDto dto, string libroId);
+
     }
 }
